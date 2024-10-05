@@ -1,14 +1,13 @@
 # LAB-1: 机器启动
 
-## 组织结构
 ## 代码组织结构
 
 ECNU-OSLAB  
 ├── include  
-│   │   └── uart.h  
+│   ├── dev  
+│   │   └── uart.h    
 │   ├── lib  
 │   │   ├── print.h  
-│   │   └── slock.h  
 │   │   └── lock.h  
 │   ├── proc  
 │   │   └── cpu.h  
@@ -16,26 +15,19 @@ ECNU-OSLAB
 │   └── riscv.h  
 ├── kernel  
 │   ├── boot  
-│   │   ├── main.c  
-│   │   ├── start.c  
-│   │   ├── main.c  (TODO)  
-│   │   ├── start.c (TODO)   
+│   │   ├── main.c  **(TODO)**  
+│   │   ├── start.c **(TODO)**   
 │   │   ├── entry.S  
 │   │   └── Makefile  
 │   ├── dev  
 │   │   ├── uart.c  
 │   │   └── Makefile  
-│   │   └── Makefile    
 │   ├── lib  
-│   │   ├── print.c  
-│   │   ├── spinlock.c  
-│   │   └── Makefile  
-│   │   ├── print.c (TODO)  
-│   │   ├── spinlock.c (TODO)  
+│   │   ├── print.c **(TODO)**  
+│   │   ├── spinlock.c **(TODO)**  
 │   │   └── Makefile    
 │   ├── proc  
-│   │   ├── cpu.c  
-│   │   ├── cpu.c  (TODO)  
+│   │   ├── cpu.c  **(TODO)**  
 │   │   └── Makefile  
 │   ├── Makefile  
 │   └── kernel.ld  
@@ -165,6 +157,6 @@ cpu 1 report: sum = 2000000
 
 3. 提醒: 之所以要求大家维护代码仓库，是为了查看大家的提交记录，  
 
-    所以请及时同步当天写的东西到线上仓库，不要攒到最后一口气提交  
+    所以请及时同步当天写的东西到线上仓库，不要攒到最后一口气提交，  
 
     可能被误判为复制粘贴
