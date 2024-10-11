@@ -8,7 +8,6 @@ ECNU-OSLAB
 │   │   └── uart.h  
 │   ├── lib  
 │   │   ├── print.h  
-│   │   └── slock.h  
 │   │   └── lock.h  
 │   ├── proc  
 │   │   └── cpu.h  
@@ -16,8 +15,6 @@ ECNU-OSLAB
 │   └── riscv.h  
 ├── kernel  
 │   ├── boot  
-│   │   ├── main.c  
-│   │   ├── start.c  
 │   │   ├── main.c  (TODO)  
 │   │   ├── start.c (TODO)   
 │   │   ├── entry.S  
@@ -25,16 +22,11 @@ ECNU-OSLAB
 │   ├── dev  
 │   │   ├── uart.c  
 │   │   └── Makefile  
-│   │   └── Makefile    
 │   ├── lib  
-│   │   ├── print.c  
-│   │   ├── spinlock.c  
-│   │   └── Makefile  
 │   │   ├── print.c (TODO)  
 │   │   ├── spinlock.c (TODO)  
 │   │   └── Makefile    
 │   ├── proc  
-│   │   ├── cpu.c  
 │   │   ├── cpu.c  (TODO)  
 │   │   └── Makefile  
 │   ├── Makefile  
