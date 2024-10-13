@@ -23,7 +23,7 @@ ECNU-OSLAB
 │   ├── mem **(NEW)**  
 │   │   └── pmem.h  
 │   │   └── vmem.h  
-│   ├── common.h  
+│   ├── common.h **(CHANGE)**  
 │   ├── memlayout.h **(CHANGE)**  
 │   └── riscv.h **(CHANGE)**  
 ├── kernel  
@@ -60,7 +60,9 @@ ECNU-OSLAB
 
 3. **memlayout.h** 新增一些硬件寄存器地址
 
-3. **kernel.ld** 新增一些`PROVIDE`用于标记关键地址
+4. **common.h** 新增PGSIZE定义
+
+5. **kernel.ld** 新增一些`PROVIDE`用于标记关键地址
 
 ## 第一阶段实验：物理内存的分配与回收
 
