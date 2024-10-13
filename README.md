@@ -152,6 +152,10 @@ static alloc_region_t kern_region, user_region;
 ## 第一阶段测试
 
 ```
+volatile static int started = 0;
+
+volatile static int* mem[1024];
+
 int main()
 {
     int cpuid = r_tp();
