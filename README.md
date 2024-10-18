@@ -154,7 +154,9 @@ static alloc_region_t kern_region, user_region;
 ```
 volatile static int started = 0;
 
-volatile static int* mem[1024];
+volatile static int over_1 = 0, over_2 = 0;
+
+static int* mem[1024];
 
 int main()
 {
