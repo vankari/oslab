@@ -98,7 +98,7 @@ CLINT: core local interrupt 主要用于管理与处理器核心相关的时钟�
 
 本次实验需要修改的目录包括 **boot dev trap**
 
-1. 第一步, 关注 **dev** 里面的 **timer.c**
+#### 第一步, 关注 **dev** 里面的 **timer.c**
 
 这个文件里的函数被分成了两部分, 一部分工作在 **M-mode**, 一部分工作在 **S-mode**
 
@@ -124,21 +124,27 @@ CLINT: core local interrupt 主要用于管理与处理器核心相关的时钟�
 
 当完成 `timer_init()` 后, 可以回过头完善 **start.c** 中的 `start()`
 
-之后完成工作在 **S-mode** 的几个函数, 它们只需维护系统时钟即可
+之后编写工作在 **S-mode** 的几个函数, 它们只需简单维护系统时钟即可
 
-2. 第二步, 简单阅读 **plic.c** 里的几个函数
+#### 第二步, 简单阅读 **dev** 目录下的 **plic.c** 里的几个函数
 
-3. 第三步, 关注 **trap** 里面的 **trap_kernel.c**
+#### 第三步, 关注 **trap** 目录下的 **trap_kernel.c**
 
-建议的实现顺序是: `trap_kernel_init()`->`trap_kernel_inithart()`
+首先阅读 **trap.S** 里面的 **kernel_vector**
 
-->`external_interrupt_handler()`->`timer_interrupt_handler()`->`trap_kernel_handler()`
+相关函数的实现顺序是: `trap_kernel_init()`->`trap_kernel_inithart()`->
+
+`external_interrupt_handler()`->`timer_interrupt_handler()`->`trap_kernel_handler()`
 
 几个需要注意的地方:
 
+- 目前不处理任何异常, 发生了就报错卡死即可
+
 - xv6 的 `trap.c` 写的比较乱, 考虑如何重写它的逻辑
 
-- **S-mode** 中断默认是关闭的, 需要在某个函数里打开(`intr_on()`)
+- 建议在`trap_kernel_handler()`里使用 **trap_id** 进行 `switch case` 分类处理
+
+- **S-mode** 的中断默认是关闭的, 需要在某个函数里打开(`intr_on()`)
 
 - 时钟中断默认是在 **M-mode** 处理, 注意它是如何被抛到 **S-mode** 处理的
 
@@ -146,14 +152,11 @@ CLINT: core local interrupt 主要用于管理与处理器核心相关的时钟�
 
 - `external_interrupt_handler()` 遇到的中断号可能是0, 直接忽略即可
 
-- 目前不处理任何异常, 发生了就报错卡死即可
-
-- 建议在`trap_kernel_handler()`里使用 **trap_id** 进行 `switch case` 分类处理
-- 发生错误或意料之外的情况时尽量输出有用信息(比如一些寄存器的值, 错误原因等)
+- 发生意料之外的情况时尽量输出有用信息(比如一些寄存器的值, 错误原因等)
 
 总而言之, 本阶段的关键是理解 `kernel_vector` 与 `trap_kernel_handler()`
 
-`timer_vector` 与 `timer_init()` 如何进行合作, 以完成基本的中断响应
+`timer_vector` 与 `timer_init()` 如何进行合作, 以完成基本的陷阱响应
 
 ## 第一阶段测试
 
