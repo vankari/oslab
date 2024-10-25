@@ -12,3 +12,8 @@ int mycpuid(void)
 {
 
 }
+
+proc_t* myproc(void)
+{
+    
+}
