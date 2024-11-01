@@ -54,6 +54,8 @@ void proc_make_fisrt()
 
     // 设置 heap_top
 
+    // 设置 mmap_region_t
+
     // tf字段设置
 
     // 内核字段设置
