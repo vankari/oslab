@@ -270,7 +270,7 @@ mmap_region 这样的数据结构是要占据空间的，我们不可能在 proc
 
             // 申请
             for(int i = 0; i < 32; i++)
-                mmap_list[i] = mmap_region_alloc(&started);
+                mmap_list[i] = mmap_region_alloc();
             over_1 = true;
 
             // 屏障
@@ -297,7 +297,7 @@ mmap_region 这样的数据结构是要占据空间的，我们不可能在 proc
 
             // 申请
             for(int i = 32; i < 63; i++)
-                mmap_list[i] = mmap_region_alloc(&started);
+                mmap_list[i] = mmap_region_alloc();
             over_2 = true;
 
             // 屏障
@@ -327,7 +327,7 @@ mmap_region 这样的数据结构是要占据空间的，我们不可能在 proc
 
 让我们考虑如何使用这些资源实现 mmap 与 munmap 操作
 
-首先应该在 `proc_make_first()` 里初始化 proczero->mmap，此时整个 mmap 区域都是可分配的
+首先应该在 `proc_make_first()` 里初始化 proczero->mmap, 此时整个 mmap 区域都是可分配的
 
 随后加入本次实验最困难的部分, uvm.c 里的 `uvm_mmap()` 和 `uvm_munmap()`
 
