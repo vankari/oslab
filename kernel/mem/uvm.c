@@ -18,7 +18,6 @@ static void copy_range(pgtbl_t old, pgtbl_t new, uint64 begin, uint64 end)
         pte = vm_getpte(old, va, false);
         assert(pte != NULL, "uvm_copy_pgtbl: pte == NULL");
         assert((*pte) & PTE_V, "uvm_copy_pgtbl: pte not valid");
-        assert(PTE_CHECK(*pte), "uvm_copy_pgtbl: pte check fail");
         
         pa = (uint64)PTE_TO_PA(*pte);
         flags = (int)PTE_FLAGS(*pte);
@@ -65,7 +64,13 @@ void uvm_show_mmaplist(mmap_region_t* mmap)
 
 // 递归释放 页表占用的物理页 和 页表管理的物理页
 // ps: 顶级页表level = 3, level = 0 说明是页表管理的物理页
-void uvm_destroy_pgtbl(pgtbl_t pgtbl, uint32 level)
+static void destroy_pgtbl(pgtbl_t pgtbl, uint32 level)
+{
+
+}
+
+// 页表销毁：trapframe 和 trampoline 单独处理
+void uvm_destroy_pgtbl(pgtbl_t pgtbl)
 {
 
 }
