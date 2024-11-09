@@ -15,7 +15,7 @@ static pgtbl_t kernel_pgtbl; // 内核页表
 // 根据pagetable,找到va对应的pte
 // 若设置alloc=true 则在PTE无效时尝试申请一个物理页
 // 成功返回PTE, 失败返回NULL
-// 提示：使用 VA_TO_VPN PTE_TO_PA PA_TO_PTE
+// 提示:使用 VA_TO_VPN PTE_TO_PA PA_TO_PTE
 pte_t* vm_getpte(pgtbl_t pgtbl, uint64 va, bool alloc)
 {
 
@@ -44,7 +44,7 @@ void kvm_init()
 
 }
 
-// 使用新的页表，刷新TLB
+// 使用新的页表, 刷新TLB
 void kvm_inithart()
 {
 
@@ -54,7 +54,7 @@ void kvm_inithart()
 // 输出页表内容
 void vm_print(pgtbl_t pgtbl)
 {
-    // 顶级页表，次级页表，低级页表
+    // 顶级页表, 次级页表, 低级页表
     pgtbl_t pgtbl_2 = pgtbl, pgtbl_1 = NULL, pgtbl_0 = NULL;
     pte_t pte;
 

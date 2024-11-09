@@ -69,7 +69,7 @@ static void destroy_pgtbl(pgtbl_t pgtbl, uint32 level)
 
 }
 
-// 页表销毁：trapframe 和 trampoline 单独处理
+// 页表销毁:trapframe 和 trampoline 单独处理
 void uvm_destroy_pgtbl(pgtbl_t pgtbl)
 {
 
@@ -139,7 +139,7 @@ void uvm_copyin(pgtbl_t pgtbl, uint64 dst, uint64 src, uint32 len)
 
 }
 
-// 内核态地址空间[src, src+len） 拷贝至 用户态地址空间[dst, dst+len)
+// 内核态地址空间[src, src+len) 拷贝至 用户态地址空间[dst, dst+len)
 void uvm_copyout(pgtbl_t pgtbl, uint64 dst, uint64 src, uint32 len)
 {
 
