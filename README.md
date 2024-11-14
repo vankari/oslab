@@ -26,7 +26,7 @@ ECNU-OSLAB
 │   │   ├── syscall.h  
 │   │   ├── sysfunc.h **(CHANGE)** 新的系统调用  
 │   │   └── sysnum.h **(CHANGE)** 新的系统调用  
-│   ├── common.h  
+│   ├── common.h **(CHANGE)** 增加NPROC定义  
 │   ├── memlayout.h  
 │   └── riscv.h  
 ├── **kernel**  
