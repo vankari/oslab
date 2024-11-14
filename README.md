@@ -71,8 +71,8 @@ ECNU-OSLAB
 │   └── kernel.ld  
 ├── **user**  
 │   ├── syscall_arch.h  
-│   ├── syscall_num.h  
-│   ├── sys.h **(CHANGE)** 日常更新    
+│   ├── syscall_num.h **(CHANGE)** 日常更新  
+│   ├── sys.h  
 │   ├── initcode.c **(CHANGE)** 日常更新  
 │   └── Makefile  
 ├── Makefile  
