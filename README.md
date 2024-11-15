@@ -37,7 +37,7 @@ ECNU-OSLAB
 │   │   └── Makefile  
 │   ├── dev  
 │   │   ├── uart.c  
-│   │   ├── timer.c **(CHANGE)** 系统时钟取消锁  
+│   │   ├── timer.c **(CHANGE)** 系统时钟取消static  
 │   │   ├── plic.c  
 │   │   └── Makefile  
 │   ├── lib  
