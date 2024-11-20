@@ -212,8 +212,11 @@ void virtio_disk_rw(buf_t *b, bool write)
 
     // buf0 is on a kernel stack, which is not direct mapped,
     // thus the call to kvmpa().
-    pte_t* pte = vm_getpte(NULL, (uint64)&buf0, false);
-    disk.desc[idx[0]].addr = (uint64)PTE_TO_PA(*pte);
+    uint64 addr = ALIGN_DOWN((uint64)&buf0, PGSIZE);
+    uint64 off  = ((uint64)&buf0) % PGSIZE;
+
+    pte_t* pte = vm_getpte(NULL, addr, false);
+    disk.desc[idx[0]].addr = (uint64)PTE_TO_PA(*pte) + off;
     disk.desc[idx[0]].len = sizeof(buf0);
     disk.desc[idx[0]].flags = VRING_DESC_F_NEXT;
     disk.desc[idx[0]].next = idx[1];

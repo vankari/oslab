@@ -1,4 +1,5 @@
 #include "sys.h"
+#include "type.h"
 
 int main()
 {

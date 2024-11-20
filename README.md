@@ -164,6 +164,10 @@ mkfs.c 会填写 super block 中的信息, 其他四个区域会全部填写为 
 
 - **trap_kernel.c** 和时钟中断、UART中断一样, virtio 也需要在中断发生时调用中断响应函数
 
+virtio.c 里和xv6有一点不一样 (215到219行) 由于不使用 `kvmpa()`, 所以需要为 `vm_getpte()` 增加一条规则
+
+当传入的 pgtbl == NULL 时, 意味着默认使用 kernel_pgtbl, 需要你实现这件事
+
 当你阅读 virtio.c 这个文件时, 你会发现它不是完全独立的, 它依赖一个叫 **buf_t** 的数据结构, 这个 **buf_t** 是做什么的呢?
 
 ## 实验三: buf层的实现 (困难)
@@ -308,9 +312,173 @@ bitmap 是一种非常经典的文件系统管理方法, 它使用一块区域�
 
 你需要在 bitmap.c 里完成这件事, 你应该理解要做什么, 这里也会用到 buf 层的函数
 
-## 测试
+## 测试前的系统调用准备
 
-敬请期待
+本次测试新增的系统调用都是临时性的, 不是长期使用的, 进入下一个实验前应该删去
+
+另外, 为考验大家是否理解系统调用过程, 本次和系统调用测试相关的代码没有直接给出, 需要你手动添加
+
+这里给出了 **sysfunc.c** 中需要添加的系统调用函数
+
+```c
+extern super_block_t sb;
+
+// 申请一个block
+// 返回申请到的block的序号
+uint64 sys_alloc_block()
+{
+    uint32 ret = bitmap_alloc_block();
+    bitmap_print(sb.data_bitmap_start); 
+    return ret;
+}
+
+// 释放一个block
+// uint32 block_num 要释放的block序号
+// 成功返回0
+uint64 sys_free_block()
+{
+    uint32 block_num;
+    arg_uint32(0, &block_num);
+    bitmap_free_block(block_num);
+    bitmap_print(sb.data_bitmap_start);
+    return 0;
+}
+
+// 测试 buf_read
+// uint32 block_num 要被读取的block序号
+// uint64 addr 内容放入用户的这个地址
+// 成功返回buf的地址
+uint64 sys_read_block()
+{
+    uint32 block_num;
+    uint64 addr;
+    arg_uint32(0, &block_num);
+    arg_uint64(1, &addr);
+
+    buf_t* buf = buf_read(block_num);
+    uvm_copyout(myproc()->pgtbl, addr, (uint64)(buf->data), 128);
+    return (uint64)buf;
+}
+
+// 修改block
+// uint64 buf_addr buf的地址
+// uint64 write_addr 用户希望写入的数据地址
+// 返回0
+uint64 sys_write_block()
+{
+    uint64 buf_addr, write_addr;
+    arg_uint64(0, &buf_addr);
+    arg_uint64(1, &write_addr);
+
+    buf_t* buf = (buf_t*)(buf_addr);
+    uvm_copyin(myproc()->pgtbl, (uint64)(buf->data), write_addr, 128);
+
+    return 0;
+}
+
+// 测试 buf_release
+// uint64 buf_addr buf的地址
+uint64 sys_release_block()
+{
+    uint64 buf_addr;
+    arg_uint64(0, &buf_addr);
+
+    buf_t* buf = (buf_t*)(buf_addr);
+    buf_release(buf);
+    
+    return 0;
+}
+
+// 测试 buf_print
+uint64 sys_show_buf()
+{
+    buf_print();
+    return 0;
+}
+```
+
+## 测试一: bitmap
+
+```c
+    #include "sys.h"
+    #include "type.h"
+
+    int main()
+    {
+        uint32 block_num_1 = syscall(SYS_alloc_block);
+        uint32 block_num_2 = syscall(SYS_alloc_block);
+        uint32 block_num_3 = syscall(SYS_alloc_block);
+        syscall(SYS_free_block, block_num_2);
+        syscall(SYS_free_block, block_num_1);
+        syscall(SYS_free_block, block_num_3);
+        
+        while(1);
+        return 0;
+    }
+```
+
+这个测试关心 **bitmap.c** 中的 bit 操作是否正确
+
+理想的输出参见 ./picture/bitmap.png
+
+## 测试二: buf
+
+```c
+#include "sys.h"
+#include "type.h"
+
+int main()
+{
+    char buf[128];
+    uint64 buf_in_kernel[10];
+
+    // 初始状态:读了sb并释放了buf
+    syscall(SYS_print, "\nstate-1:");
+    syscall(SYS_show_buf);
+    
+    // 耗尽所有 buf
+    for(int i = 0; i < 6; i++) {
+        buf_in_kernel[i] = syscall(SYS_read_block, 100 + i, buf);
+        buf[i] = 0xFF;
+        syscall(SYS_write_block, buf_in_kernel[i], buf);
+    }
+    syscall(SYS_print, "\nstate-2:");
+    syscall(SYS_show_buf);
+
+    // 测试是否会触发buf_read里的panic,测试完后注释掉(一次性)
+    // buf_in_kernel[0] = syscall(SYS_read_block, 0, buf);
+
+
+    // 释放两个buf-4 和 buf-1，查看链的状态
+    syscall(SYS_release_block, buf_in_kernel[3]);
+    syscall(SYS_release_block, buf_in_kernel[0]);
+    syscall(SYS_print, "\nstate-3:");
+    syscall(SYS_show_buf);
+
+    // 申请buf,测试LRU是否生效 + 测试103号block的lazy write
+    buf_in_kernel[6] = syscall(SYS_read_block, 106, buf);
+    buf_in_kernel[7] = syscall(SYS_read_block, 103, buf);
+    syscall(SYS_print, "\nstate-4:");
+    syscall(SYS_show_buf);
+
+    // 释放所有buf
+    syscall(SYS_release_block, buf_in_kernel[7]);
+    syscall(SYS_release_block, buf_in_kernel[6]);
+    syscall(SYS_release_block, buf_in_kernel[5]);
+    syscall(SYS_release_block, buf_in_kernel[4]);
+    syscall(SYS_release_block, buf_in_kernel[2]);
+    syscall(SYS_release_block, buf_in_kernel[1]);
+    syscall(SYS_print, "\nstate-5:");
+    syscall(SYS_show_buf);
+
+    while(1);
+    return 0;
+}
+```
+
+这个测试关心 buf.c 是否正常工作, 以及之前提到的 LRU 策略和 lazy write 策略是否正常执行
+
+理想的测试结果放在 ./picture/buf_test-1(1).png 和 buf_test-1(2).png 中
 
 ## 总结
 
