@@ -88,6 +88,7 @@ ECNU-OSLAB
 │   ├── syscall_arch.h  
 │   ├── syscall_num.h  
 │   ├── sys.h  
+│   ├── type.h **(NEW)**  
 │   ├── initcode.c  
 │   └── Makefile  
 ├── Makefile **(CHANGE)** 支持mkfs  
