@@ -251,7 +251,7 @@ but_release(buf);
 
 首先解释 LRU 算法, 这里有一个简单的示意图:
 
-![图片](./picture/01.jpg)
+![图片](./picture/LRU.jpg)
 
 图片可以分为三个部分: **head_buf** + **buf_ref > 0 的 LRU 链** + **buf_ref = 0 的 LRU 链**
 
