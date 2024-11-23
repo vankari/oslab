@@ -24,6 +24,15 @@ typedef struct super_block {
 
 } super_block_t;
 
+typedef struct inode_disk {
+    short type;
+    short major;
+    short minor;
+    short nlink;
+    unsigned int size;
+    unsigned int addrs[13];
+} inode_disk_t;
+
 // 常量定义 
 #define BLOCK_SIZE       1024
 #define N_DATA_BLOCK     8192 // 1个block的bitmap管理的极限
