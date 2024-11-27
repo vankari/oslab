@@ -70,3 +70,9 @@ void buf_release(buf_t* buf)
 {
 
 }
+
+// 输出buf_cache的情况
+void buf_print()
+{
+    
+}
