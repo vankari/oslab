@@ -1,5 +1,8 @@
 #include "fs/fs.h"
 #include "fs/buf.h"
+#include "fs/bitmap.h"
+#include "fs/inode.h"
+#include "fs/dir.h"
 #include "lib/str.h"
 #include "lib/print.h"
 
@@ -12,7 +15,7 @@ super_block_t sb;
 // 输出super_block的信息
 static void sb_print()
 {
-    printf("super block information:\n");
+    printf("\nsuper block information:\n");
     printf("magic = %x\n", sb.magic);
     printf("block size = %d\n", sb.block_size);
     printf("inode blocks = %d\n", sb.inode_blocks);
@@ -27,5 +30,15 @@ static void sb_print()
 // 文件系统初始化
 void fs_init()
 {
+    buf_init();
 
+    buf_t* buf; 
+    buf = buf_read(SB_BLOCK_NUM);
+    memmove(&sb, buf->data, sizeof(sb));
+    assert(sb.magic == FS_MAGIC, "fs_init: magic");
+    assert(sb.block_size == BLOCK_SIZE, "fs_init: block size");
+    buf_release(buf);
+    sb_print();
+
+    inode_init();
 }
