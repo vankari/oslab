@@ -24,9 +24,9 @@ int main()
         trap_kernel_init();
         trap_kernel_inithart();        
         mmap_init();
-        virtio_disk_init();
         proc_init();
         proc_make_first();
+        virtio_disk_init();
 
         __sync_synchronize();
         // started = 1;

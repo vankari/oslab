@@ -37,6 +37,21 @@ uint16 dir_delete_entry(inode_t *pip, char *name)
 
 }
 
+// 把目录下的有效目录项复制到dst (dst区域长度为len)
+// 返回读到的字节数 (sizeof(dirent_t)*n)
+// 调用者需要持有pip的锁
+uint32 dir_get_entries(inode_t* pip, uint32 len, void* dst, bool user)
+{
+
+}
+
+// 改变进程里存储的当前目录
+// 成功返回0 失败返回-1
+uint32 dir_change(char* path)
+{
+
+}
+
 // 输出一个目录下的所有有效目录项
 // for debug
 // ps: 调用者需持有pip的锁
@@ -106,4 +121,48 @@ inode_t* path_to_inode(char* path)
 inode_t* path_to_pinode(char* path, char* name)
 {
     return search_inode(path, name, true);
+}
+
+// 如果path对应的inode存在则返回inode
+// 如果path对应的inode不存在则创建inode
+// 失败返回NULL
+inode_t* path_create_inode(char* path, uint16 type, uint16 major, uint16 minor)
+{
+
+}
+
+// 文件链接(目录不能被链接)
+// 本质是创建一个目录项, 这个目录项的inode_num是存在的而不用申请
+// 成功返回0 失败返回-1
+uint32 path_link(char* old_path, char* new_path)
+{
+
+}
+
+// 检查一个unlink操作是否合理
+// 调用者需要持有ip的锁
+// 在path_unlink()中调用
+static bool check_unlink(inode_t* ip)
+{
+    assert(sleeplock_holding(&ip->slk), "check_unlink: slk");
+
+    uint8 tmp[sizeof(dirent_t) * 3];
+    uint32 read_len;
+    
+    read_len = dir_get_entries(ip, sizeof(dirent_t) * 3, tmp, false);
+    
+    if(read_len == sizeof(dirent_t) * 3) {
+        return false;
+    } else if(read_len == sizeof(dirent_t) * 2) {
+        return true;
+    } else {
+        panic("check_unlink: read_len");
+        return false;
+    }
+}
+
+// 文件删除链接
+uint32 path_unlink(char* path)
+{
+    
 }

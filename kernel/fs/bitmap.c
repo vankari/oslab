@@ -41,5 +41,20 @@ void bitmap_free_inode(uint16 inode_num)
 // for debug
 void bitmap_print(uint32 bitmap_block_num)
 {
+    uint8 bit_cmp;
+    uint32 byte, shift;
 
+    printf("\nbitmap:\n");
+
+    buf_t* buf = buf_read(bitmap_block_num);
+    for(byte = 0; byte < BLOCK_SIZE; byte++) {
+        bit_cmp = 1;
+        for(shift = 0; shift <= 7; shift++) {
+            if(bit_cmp & buf->data[byte])
+               printf("bit %d is alloced\n", byte * 8 + shift);
+            bit_cmp = bit_cmp << 1;
+        }
+    }
+    printf("over\n");
+    buf_release(buf);
 }

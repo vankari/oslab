@@ -74,5 +74,17 @@ void buf_release(buf_t* buf)
 // 输出buf_cache的情况
 void buf_print()
 {
-    
+    printf("\nbuf_cache:\n");
+    buf_node_t* buf = head_buf.next;
+    spinlock_acquire(&lk_buf_cache);
+    while(buf != &head_buf)
+    {
+        buf_t* b = &buf->buf;
+        printf("buf %d: ref = %d, block_num = %d\n", (int)(buf-buf_cache), b->buf_ref, b->block_num);
+        for(int i = 0; i < 8; i++)
+            printf("%d ",b->data[i]);
+        printf("\n");
+        buf = buf->next;
+    }
+    spinlock_release(&lk_buf_cache);
 }

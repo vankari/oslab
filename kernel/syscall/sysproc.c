@@ -70,3 +70,14 @@ uint64 sys_sleep()
 {
 
 }
+
+// 执行一个ELF文件
+// char* path
+// char** argv
+// 成功返回argc 失败返回-1
+uint64 sys_exec()
+{
+    char path[DIR_PATH_LEN];    // 文件路径
+    char* argv[ELF_MAXARGS];    // 参数指针数组
+
+}
