@@ -140,7 +140,7 @@ ECNU-OSLAB
 
 6. 有时间的话, 你可以独立完成的任务: 支持管道文件(主要在xv6的pipe.c中实现) 
 
-    + 用户栈溢出产生的缺页异常处理(利用proc->ustack_pages)
+    用户栈溢出产生的缺页异常处理(利用proc->ustack_pages)
 
 ## 测试一
 ```c 
