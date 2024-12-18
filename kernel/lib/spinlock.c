@@ -39,7 +39,7 @@ void spinlock_init(spinlock_t *lk, char *name)
 {
     lk->name = name;
     lk->locked = 0;
-    lk->cpuid = 0;
+    lk->cpuid = -1;
 }
 
 // 获取自选锁
@@ -47,7 +47,7 @@ void spinlock_acquire(spinlock_t *lk)
 {    
     push_off(); 
     if(spinlock_holding(lk))
-    panic("acquired");//已持有 panic
+        panic("acquired");//已持有 panic
     //__sync_lock_test_and_set gcc提供 实现原子读写操作(将指定内存位置的值设置为新的值并返回原来的值)
     //防止在并行执行时访问+写入造成数据不安全
     while(__sync_lock_test_and_set(&lk->locked, 1) != 0);
@@ -56,7 +56,6 @@ void spinlock_acquire(spinlock_t *lk)
     __sync_synchronize();
     // for debug 记录可供debug用的信息
     lk->cpuid = mycpuid();
-    lk->cpuid = mycpuid();
 } 
 
 // 释放自旋锁
@@ -64,7 +63,7 @@ void spinlock_release(spinlock_t *lk)
 {
     if(!spinlock_holding(lk))
         panic("release");//未持锁释放抛出panic
-    lk->cpuid = 0;
+    lk->cpuid = -1;
     //同步访存
     __sync_synchronize();
     //原子读写
