@@ -23,8 +23,8 @@ void pop_off(void)
     if(c->noff < 1)
         panic("pop_off"); //未持有锁时popoff或者在持有锁时中断处于开状态抛出panic
     c->noff -= 1; //层数-1
-        if(c->noff == 0 && c->origin)
-            intr_on();//恢复中断状态
+    if(c->noff == 0 && c->origin)
+        intr_on();//恢复中断状态
 }
 
 // 是否持有自旋锁
