@@ -39,7 +39,7 @@ void spinlock_init(spinlock_t *lk, char *name)
 {
     lk->name = name;
     lk->locked = 0;
-    lk->cpuid = 0;
+    lk->cpuid = -1;
 }
 
 // 获取自选锁
@@ -56,7 +56,6 @@ void spinlock_acquire(spinlock_t *lk)
     __sync_synchronize();
     // for debug 记录可供debug用的信息
     lk->cpuid = mycpuid();
-    lk->cpuid = mycpuid();
 } 
 
 // 释放自旋锁
@@ -64,7 +63,7 @@ void spinlock_release(spinlock_t *lk)
 {
     if(!spinlock_holding(lk))
         panic("release");//未持锁释放抛出panic
-    lk->cpuid = 0;
+    lk->cpuid = -1;
     //同步访存
     __sync_synchronize();
     //原子读写
