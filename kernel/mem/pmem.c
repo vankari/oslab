@@ -26,6 +26,7 @@ static alloc_region_t kern_region, user_region;
 void pmem_init(void)
 {
     spinlock_init(&kern_region.lk,"kern_region_lock");
+    spinlock_init(&user_region.lk,"user_region_lock");
     spinlock_acquire(&kern_region.lk);
     kern_region.begin = (uint64 )ALLOC_BEGIN;
     kern_region.end = (uint64)ALLOC_BEGIN+KERN_PAGES*PGSIZE;
@@ -40,7 +41,6 @@ void pmem_init(void)
     }
     temp->next=NULL;
     spinlock_release(&kern_region.lk);
-    spinlock_init(&user_region.lk,"user_region_lock");
     spinlock_acquire(&user_region.lk);
     user_region.begin = (uint64)ALLOC_BEGIN+KERN_PAGES*PGSIZE;
     user_region.end = (uint64)ALLOC_END;
