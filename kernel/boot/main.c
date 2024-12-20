@@ -36,7 +36,6 @@ int main()
     int cpuid = r_tp();
 
     if(cpuid == 0) {
-        
         print_init();
         printf("cpu %d is booting!\n", cpuid);
 

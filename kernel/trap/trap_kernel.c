@@ -55,13 +55,15 @@ extern void kernel_vector();
 void trap_kernel_init()
 {
     plic_init();
-    plic_inithart();
+    
     timer_create();
 }
 
 // 各个核心trap初始化
 void trap_kernel_inithart()
 {
+   
+    plic_inithart();
     w_stvec((uint64)kernel_vector);
     intr_on();
 }
