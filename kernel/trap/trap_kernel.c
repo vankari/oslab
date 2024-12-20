@@ -54,25 +54,38 @@ extern void kernel_vector();
 // 初始化trap中全局共享的东西
 void trap_kernel_init()
 {
-
+    plic_init();
+    plic_inithart();
+    timer_create();
 }
 
 // 各个核心trap初始化
 void trap_kernel_inithart()
 {
-
+    w_stvec((uint64)kernel_vector);
+    intr_on();
 }
 
 // 外设中断处理 (基于PLIC)
 void external_interrupt_handler()
 {
-
+    int irq = plic_claim();
+    switch(irq){
+        case UART_IRQ :
+        uart_intr();
+        break;
+        case 0:
+        ;break;
+        default:
+        panic("unknown irq\n");
+        break;
+    }
 }
 
 // 时钟中断处理 (基于CLINT)
 void timer_interrupt_handler()
 {
-
+    timer_update();
 }
 
 // 在kernel_vector()里面调用
@@ -91,4 +104,31 @@ void trap_kernel_handler()
     int trap_id = scause & 0xf; 
 
     // 中断异常处理核心逻辑
+    if(scause & 0x8000000000000000)
+        switch(trap_id){
+            case 1: //ssi caused by mti
+            //if(mycpuid() == 0){
+            timer_interrupt_handler();
+            //}
+            w_sip(r_sip() & ~2);
+            break;
+            case 5://ssi
+            printf("scause = %p\n",scause);
+            printf("sepc = %p\n",sepc);
+            printf("stval = %p\n",stval);
+            break;
+            case 9://sei
+            external_interrupt_handler();
+            break;
+            default:
+            printf("intrcode = %d\n",trap_id);
+            printf("%s",interrupt_info[trap_id]);
+            break;
+        }
+    else{
+        printf("excecode = %d\n",trap_id);
+        printf("%s",exception_info[trap_id]);
+    }
+    w_sepc(sepc);
+    w_sstatus(sstatus);
 }

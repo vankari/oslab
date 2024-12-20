@@ -27,10 +27,10 @@ int main()
 #include "mem/pmem.h"
 volatile static int started = 0;
 
-volatile static int over_1 = 0, over_2 = 0;
+//volatile static int over_1 = 0, over_2 = 0;
 
 static int* mem[1024];
-
+*/
 int main()
 {
     int cpuid = r_tp();
