@@ -125,7 +125,18 @@ void kvm_init()
     vm_mappages(kernel_pgtbl, PLIC_BASE +  0x200000, PLIC_BASE +  0x200000, 0x4000, PTE_R | PTE_W);    
     // CLINT映射
     vm_mappages(kernel_pgtbl, CLINT_BASE, CLINT_BASE, PGSIZE, PTE_R | PTE_W);
-
+    //trampoline
+    vm_mappages(kernel_pgtbl,TRAMPOLINE,(uint64)trampoline,PGSIZE,PTE_R|PTE_X);
+    //kstack
+    uint64 kstack_id=0;
+    uint64 kstack_va=VA_MAX;
+    //只分配kstack0
+    //do{
+        uint64 page=(uint64)pmem_alloc(true);
+        kstack_va=KSTACK(kstack_id);
+        vm_mappages(kernel_pgtbl,kstack_va,page,PGSIZE,PTE_R|PTE_W);
+    //    kstack_id++; 
+    //}while(kstack_va>=0);
     // kernel代码映射
     vm_mappages(kernel_pgtbl, KERNEL_BASE, KERNEL_BASE, (uint64)KERNEL_DATA-KERNEL_BASE, PTE_R | PTE_X );
     //kernel 数据映射

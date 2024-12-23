@@ -108,13 +108,13 @@ void trap_kernel_handler()
     // 中断异常处理核心逻辑
     if(scause & 0x8000000000000000)
         switch(trap_id){
-            case 1: //ssi caused by mti
-            //if(mycpuid() == 0){
+            case 1: //由mmode timer intr引发smode软中断
+            //if(mycpuid() == 0){//暂时无法解释为什么在xv6中只有id=0的cpu触发timerintr
             timer_interrupt_handler();
             //}
             w_sip(r_sip() & ~2);
             break;
-            case 5://ssi
+            case 5://sti
             printf("scause = %p\n",scause);
             printf("sepc = %p\n",sepc);
             printf("stval = %p\n",stval);
@@ -124,12 +124,12 @@ void trap_kernel_handler()
             break;
             default:
             printf("intrcode = %d\n",trap_id);
-            printf("%s",interrupt_info[trap_id]);
+            printf("%s\n",interrupt_info[trap_id]);
             break;
         }
     else{
         printf("excecode = %d\n",trap_id);
-        printf("%s",exception_info[trap_id]);
+        printf("%s\n",exception_info[trap_id]);
     }
     w_sepc(sepc);
     w_sstatus(sstatus);

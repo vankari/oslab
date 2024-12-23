@@ -19,5 +19,11 @@ int mycpuid(void)
 
 proc_t* myproc(void)
 {
-    
+    int before_status = intr_get();
+    intr_off();
+    cpu_t* c = mycpu();
+    struct proc *p = c->proc;
+    if(before_status)
+        intr_on();
+    return p;
 }

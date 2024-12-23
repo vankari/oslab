@@ -10,6 +10,8 @@
         "pmem.h": "c",
         "timer.h": "c",
         "memlayout.h": "c",
-        "plic.h": "c"
+        "plic.h": "c",
+        "vmem.h": "c",
+        "initcode.h": "c"
     }
 }

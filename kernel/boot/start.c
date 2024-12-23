@@ -18,7 +18,7 @@ void start()
     //之后跳转到main
     w_mepc((uint64)main);
     //关闭内存分页，直接使用物理地址
-    //设置所有中断异常处理在S mode下 16bit
+    //设置所有中断异常处理在S mode下 16bit 由机器模式处理的时钟中断也被委托到smode处理
     w_satp(0);
     w_medeleg(0xffff);
     w_mideleg(0xffff);
