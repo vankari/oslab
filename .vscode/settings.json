@@ -12,6 +12,9 @@
         "memlayout.h": "c",
         "plic.h": "c",
         "vmem.h": "c",
-        "initcode.h": "c"
+        "initcode.h": "c",
+        "trap.h": "c",
+        "syscall.h": "c",
+        "proc.h": "c"
     }
 }

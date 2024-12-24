@@ -5,7 +5,6 @@
 #include "proc/cpu.h"
 #include "proc/initcode.h"
 #include "memlayout.h"
-
 // in trampoline.S
 extern char trampoline[];
 
@@ -42,7 +41,7 @@ pgtbl_t proc_pgtbl_init(uint64 trapframe)
     code + data (1 page)
     empty space (1 page) 最低的4096字节 不分配物理页，同时不可访问
 */
-void proc_make_fisrt()
+void proc_make_first()
 {
     uint64 page;
     
@@ -66,7 +65,7 @@ void proc_make_fisrt()
     // 设置 heap_top
     proczero.heap_top=2*PGSIZE;
     // 设置 mmap_region_t
-
+    //proczero.mmap = ;
     // tf字段设置
     proczero.tf =(trapframe_t*)tf;
     proczero.tf->epc = PGSIZE;

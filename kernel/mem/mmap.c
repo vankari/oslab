@@ -21,7 +21,7 @@ static spinlock_t list_lk;
 // 初始化上述三个数据结构
 void mmap_init()
 {
-
+    spinlock_init(&list_lk,"mmap_list_lk");
 }
 
 // 从仓库申请一个 mmap_region_t

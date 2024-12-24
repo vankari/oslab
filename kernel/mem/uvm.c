@@ -66,13 +66,33 @@ void uvm_show_mmaplist(mmap_region_t* mmap)
 // ps: 顶级页表level = 3, level = 0 说明是页表管理的物理页
 static void destroy_pgtbl(pgtbl_t pgtbl, uint32 level)
 {
+    if(level==0){
+        pmem_free((uint64)pgtbl,false);
+    }
+    else{
+        level--;
+        for(int i=0;i<PGSIZE/sizeof(pte_t);i++)//遍历pte
+        {
+            pte_t pte = pgtbl[i]; 
+            if(pte & PTE_V) {   // 有效PTE
+            // 更新pagetable指向下一级页表
+                pgtbl_t nxtpgtbl = (pgtbl_t)PTE_TO_PA(pte);
+                destroy_pgtbl(nxtpgtbl,level);
+                pgtbl[i]=0;
+            }
+        }
+        pmem_free(*pgtbl,false);
+    }
 
 }
 
 // 页表销毁：trapframe 和 trampoline 单独处理
-void uvm_destroy_pgtbl(pgtbl_t pgtbl)
+void uvm_destroy_pgtbl(pgtbl_t pgtbl,uint32 level)
 {
-
+    vm_unmappages(pgtbl,TRAMPOLINE,PGSIZE,true);
+    vm_unmappages(pgtbl,TRAPFRAME,PGSIZE,true);
+    destroy_pgtbl(pgtbl,level);
+    
 }
 
 // 拷贝页表 (拷贝并不包括trapframe 和 trampoline)
@@ -117,7 +137,15 @@ void uvm_munmap(uint64 begin, uint32 npages)
 uint64 uvm_heap_grow(pgtbl_t pgtbl, uint64 heap_top, uint32 len)
 {
     uint64 new_heap_top = heap_top + len;
-
+    assert(new_heap_top<TRAPFRAME-PGSIZE,"heapoverflow");
+    uint64 va = ALIGN_UP(heap_top,PGSIZE);
+    for(uint64 cur_pg=va;pg<new_heap_top;cur_pg+=PGSIZE){
+        uint64 pa =(uint64) pmem_alloc(false);
+        if(pa==NULL)panic("heapoverflow");
+        memset((void*)pa,0,PGSIZE);
+        vm_mappages(pgtbl,va,pa,PGSIZE,PTE_R|PTE_W|PTE_U);
+    }
+    
 
     return new_heap_top;
 }
@@ -127,7 +155,7 @@ uint64 uvm_heap_grow(pgtbl_t pgtbl, uint64 heap_top, uint32 len)
 uint64 uvm_heap_ungrow(pgtbl_t pgtbl, uint64 heap_top, uint32 len)
 {
     uint64 new_heap_top = heap_top - len;
-
+    assert(heap_top>=2*PGSIZE,"");
 
     return new_heap_top;
 }
@@ -136,13 +164,39 @@ uint64 uvm_heap_ungrow(pgtbl_t pgtbl, uint64 heap_top, uint32 len)
 // 注意: src dst 不一定是 page-aligned
 void uvm_copyin(pgtbl_t pgtbl, uint64 dst, uint64 src, uint32 len)
 {
-
+    uint64 va,pa,len0;
+    while(len >0){
+        va = ALIGN_DOWN(src,PGSIZE);
+        pte_t* pte = vm_getpte(pgtbl,va,false);//失败不申请物理页
+        if(pte==NULL) panic("COPYinTEerror");
+        pa = PTE_TO_PA(*pte);
+        len0=PGSIZE-(src-va);
+        if(len0>len)len0=len;
+        memmove((void*)(dst),(void*)(pa+src-va),len0);
+        //调整下次移动的位置
+        len-=len0;
+        src+=len0;
+        dst+=len0;
+    }
 }
 
 // 内核态地址空间[src, src+len） 拷贝至 用户态地址空间[dst, dst+len)
 void uvm_copyout(pgtbl_t pgtbl, uint64 dst, uint64 src, uint32 len)
 {
-
+    uint64 va,pa,len0;
+    while(len >0){
+        va = ALIGN_DOWN(dst,PGSIZE);
+        pte_t* pte = vm_getpte(pgtbl,va,false);//失败不申请物理页
+        if(pte==NULL) panic("COPYoutPTEerror");
+        pa = PTE_TO_PA(*pte);
+        len0=PGSIZE-(dst-va);
+        if(len0>len)len0=len;
+        memmove((void*)(pa+(dst-va)),(void*)src,len0);
+        //调整下次移动的位置
+        len-=len0;
+        src+=len0;
+        dst+=len0;
+    }
 }
 
 // 用户态字符串拷贝到内核态
@@ -150,5 +204,28 @@ void uvm_copyout(pgtbl_t pgtbl, uint64 dst, uint64 src, uint32 len)
 // 注意: src dst 不一定是 page-aligned
 void uvm_copyin_str(pgtbl_t pgtbl, uint64 dst, uint64 src, uint32 maxlen)
 {
-
+    uint64 va,pa,len0;
+    bool isnull=false;
+    char* c;
+    while(!isnull && maxlen >0){
+        va = ALIGN_DOWN(src,PGSIZE);
+        pte_t* pte = vm_getpte(pgtbl,va,false);//失败不申请物理页
+        if(pte==NULL) panic("strCOPYinTEerror");
+        pa = PTE_TO_PA(*pte);
+        len0=PGSIZE-(src-va);
+        if(len0>maxlen)len0=maxlen;
+        c = (char*)(pa+src-va);
+        for(int i=0;i<len0;i++){
+            *((char*)(dst+i)) = c[i];
+            if(c[i]=='\0')
+            {
+                isnull=true;
+                break;
+            }
+        }
+        //调整下次移动的位置
+        maxlen-=len0;
+        src+=len0;
+        dst+=len0;
+    }
 }

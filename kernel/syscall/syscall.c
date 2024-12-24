@@ -19,7 +19,15 @@ static uint64 (*syscalls[])(void) = {
 // 系统调用
 void syscall()
 {
-
+    proc_t* p=myproc();
+    int call_id = p->tf->a7;
+    if(call_id > 0 && call_id < sizeof(syscalls)/sizeof(syscalls)[0] && syscalls[call_id]) {
+        p->tf->a0 = syscalls[call_id]();
+    } 
+    else {
+    printf("%d : unknown sys call %d\n",p->pid, call_id);
+    p->tf->a0 = -1;
+  }
 }
 
 /*

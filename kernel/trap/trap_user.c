@@ -4,7 +4,7 @@
 #include "mem/vmem.h"
 #include "memlayout.h"
 #include "riscv.h"
-
+#include "syscall/syscall.h"
 // in trampoline.S
 extern char trampoline[];      // 内核和用户切换的代码
 extern char user_vector[];     // 用户触发trap进入内核
@@ -52,10 +52,10 @@ void trap_user_handler()
     }
     else{
         switch(trapid){
-            case 8://syscall 简单回应
-                printf("get a syscall from proc %d\n",p->pid);
+            case 8:
                 p->tf->epc+=4;
                 intr_on();
+                syscall();
                 break;
             default:
                 printf("excecode = %d\n",trapid);
