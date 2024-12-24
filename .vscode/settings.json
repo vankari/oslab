@@ -7,6 +7,9 @@
         "uart.h": "c",
         "print.h": "c",
         "riscv.h": "c",
-        "stdarg.h": "c"
+        "pmem.h": "c",
+        "timer.h": "c",
+        "memlayout.h": "c",
+        "plic.h": "c"
     }
 }
