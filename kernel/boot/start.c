@@ -1,5 +1,5 @@
 #include "riscv.h"
-#include "dev/timer.h"
+
 __attribute__ ((aligned (16))) uint8 CPU_stack[4096 * NCPU];
 int main();
 void start()
@@ -23,7 +23,6 @@ void start()
     w_medeleg(0xffff);
     w_mideleg(0xffff);
     w_sie(r_sie() | SIE_SEIE | SIE_STIE | SIE_SSIE);//设置SIE(S mode 中断使能)的SEIE STIE SSIE
-    timer_init();
     /*
     //SEIE 外部中断 STIE 定时器中断 SSIE 软中断，对应使能位为1时对应中断被使能
     // 设置物理内存保护并让smode获取物理内存(全部)访问权

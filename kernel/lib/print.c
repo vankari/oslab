@@ -9,9 +9,11 @@ volatile int panicked = 0;
 static spinlock_t print_lk;
 
 static char digits[] = "0123456789abcdef";
+int if_locking;
 void print_init(void)
 {
     spinlock_init(&print_lk ,"print_lk");
+    if_locking=1;
 }
 
 void printint(long long xx,int base,int sign){
@@ -48,52 +50,56 @@ void printptr(uint64 x)
 void printf(const char *fmt, ...)
 {
     va_list ap;
-    int i, c;
+    int i, c,locking;
     char *s;
-    spinlock_acquire(&print_lk);
+    locking=if_locking;
+    if(locking)
+        spinlock_acquire(&print_lk);
     if (fmt == 0)
-      panic("null fmt");
+        panic("null fmt");
     va_start(ap, fmt);
     for(i = 0; (c = fmt[i] & 0xff) != 0; i++){
-      if(c != '%'){
-        uart_putc_sync(c);
-        continue;
-      }
-      c = fmt[++i] & 0xff;
-      if(c == 0)
-        break;
-      switch(c){
-      case 'd':
-        printint(va_arg(ap, int), 10, 1);
-        break;
-      case 'x':
-        printint(va_arg(ap, int), 16, 1);
-        break;
-      case 'p':
-        printptr(va_arg(ap, uint64));
-        break;
-      case 's':
-        if((s = va_arg(ap, char*)) == 0)
-          s = "(null)";
-        for(; *s; s++)
-          uart_putc_sync(*s);
-        break;
-      case '%':
-        uart_putc_sync('%');
-        break;
-      default:
-      // Print unknown % sequence to draw attention.
-        uart_putc_sync('%');
-        uart_putc_sync(c);
-        break;
-      }
+    if(c != '%'){
+      uart_putc_sync(c);
+      continue;
     }
+    c = fmt[++i] & 0xff;
+    if(c == 0)
+      break;
+    switch(c){
+    case 'd':
+      printint(va_arg(ap, int), 10, 1);
+      break;
+    case 'x':
+      printint(va_arg(ap, int), 16, 1);
+      break;
+    case 'p':
+      printptr(va_arg(ap, uint64));
+      break;
+    case 's':
+      if((s = va_arg(ap, char*)) == 0)
+        s = "(null)";
+      for(; *s; s++)
+        uart_putc_sync(*s);
+      break;
+    case '%':
+      uart_putc_sync('%');
+      break;
+    default:
+      // Print unknown % sequence to draw attention.
+      uart_putc_sync('%');
+      uart_putc_sync(c);
+      break;
+    }
+  }
     va_end(ap);
-    spinlock_release(&print_lk);
+    if(locking)
+        spinlock_release(&print_lk);
 }
 
 void panic(const char *s)
 {
+    if_locking=0;
     printf("panic: ");
     printf("%s\n", s);
     panicked = 1; 

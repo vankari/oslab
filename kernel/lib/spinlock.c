@@ -47,7 +47,7 @@ void spinlock_acquire(spinlock_t *lk)
 {    
     push_off(); 
     if(spinlock_holding(lk))
-        panic("acquired");//已持有 panic
+    panic("acquired");//已持有 panic
     //__sync_lock_test_and_set gcc提供 实现原子读写操作(将指定内存位置的值设置为新的值并返回原来的值)
     //防止在并行执行时访问+写入造成数据不安全
     while(__sync_lock_test_and_set(&lk->locked, 1) != 0);
