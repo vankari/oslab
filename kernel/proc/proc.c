@@ -65,6 +65,8 @@ void proc_make_fisrt()
     //和xv6 book的heap和stack方向相反
     // 设置 heap_top
     proczero.heap_top=2*PGSIZE;
+    // 设置 mmap_region_t
+
     // tf字段设置
     proczero.tf =(trapframe_t*)tf;
     proczero.tf->epc = PGSIZE;

@@ -6,24 +6,27 @@
 // 页表类型定义
 typedef uint64* pgtbl_t;
 
+// mmap_region定义
+typedef struct mmap_region mmap_region_t;
+
 // context 定义
 typedef struct context {
-    uint64 ra; // 返回地址
-    uint64 sp; // 栈指针
+  uint64 ra; // 返回地址
+  uint64 sp; // 栈指针
 
-    // callee-saved
-    uint64 s0;
-    uint64 s1;
-    uint64 s2;
-    uint64 s3;
-    uint64 s4;
-    uint64 s5;
-    uint64 s6;
-    uint64 s7;
-    uint64 s8;
-    uint64 s9;
-    uint64 s10;
-    uint64 s11;
+  // callee-saved
+  uint64 s0;
+  uint64 s1;
+  uint64 s2;
+  uint64 s3;
+  uint64 s4;
+  uint64 s5;
+  uint64 s6;
+  uint64 s7;
+  uint64 s8;
+  uint64 s9;
+  uint64 s10;
+  uint64 s11;
 } context_t;
 
 // trapframe 定义
@@ -74,6 +77,7 @@ typedef struct proc {
     pgtbl_t pgtbl;           // 用户态页表
     uint64 heap_top;         // 用户堆顶(以字节为单位)
     uint64 ustack_pages;     // 用户栈占用的页面数量
+    mmap_region_t* mmap;     // 用户可映射区域的起始节点
     trapframe_t* tf;         // 用户态内核态切换时的运行环境暂存空间
 
     uint64 kstack;           // 内核栈的虚拟地址
@@ -81,7 +85,7 @@ typedef struct proc {
 } proc_t;
 
 
-void     proc_make_fisrt();                      // 创建第一个进程并切换到它执行
+void     proc_make_first();                      // 创建第一个进程并切换到它执行
 pgtbl_t  proc_pgtbl_init(uint64 trapframe);      // 进程页表的初始化和基本映射
 
 #endif
