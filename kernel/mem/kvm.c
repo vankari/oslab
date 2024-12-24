@@ -7,8 +7,6 @@
 #include "riscv.h"
 #include "memlayout.h"
 
-extern char trampoline[]; // in trampoline.S
-
 static pgtbl_t kernel_pgtbl; // 内核页表
 
 
@@ -107,8 +105,8 @@ void vm_unmappages(pgtbl_t pgtbl, uint64 va, uint64 len, bool freeit)
     }
 }
 
-// 填充kernel_pgtbl
-// 完成 UART CLINT PLIC 内核代码区 内核数据区 可分配区域 trampoline kstack 的映射
+// 完成 UART CLINT PLIC 内核代码区 内核数据区 可分配区域 的映射
+// 相当于填充kernel_pgtbl
 void kvm_init()
 {
     // 申请L2内核页表空间

@@ -16,8 +16,3 @@ int mycpuid(void)
     int id = r_tp();
     return id;
 }
-
-proc_t* myproc(void)
-{
-    
-}
