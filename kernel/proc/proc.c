@@ -5,6 +5,7 @@
 #include "proc/cpu.h"
 #include "proc/initcode.h"
 #include "memlayout.h"
+#include "mem/mmap.h"
 // in trampoline.S
 extern char trampoline[];
 
@@ -65,7 +66,7 @@ void proc_make_first()
     // 设置 heap_top
     proczero.heap_top=2*PGSIZE;
     // 设置 mmap_region_t
-    //proczero.mmap = ;
+    proczero.mmap = mmap_region_alloc();
     // tf字段设置
     proczero.tf =(trapframe_t*)tf;
     proczero.tf->epc = PGSIZE;

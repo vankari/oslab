@@ -12,7 +12,28 @@
 // 成功返回新的堆顶 失败返回-1
 uint64 sys_brk()
 {
-
+    proc_t* p =myproc();
+    uint64 tar, cur; 
+    arg_uint64(0, &tar);
+    cur = p->heap_top;
+    uint64 heap_top;
+    if(tar==0){
+        return cur;
+    }//查询
+    else if(tar>cur){
+        heap_top= uvm_heap_grow(p->pgtbl,cur,tar-cur);
+    }
+    else if(tar<cur){
+        heap_top= uvm_heap_ungrow(p->pgtbl,cur,cur-tar);
+    }
+    else{
+        heap_top=cur;
+    }
+    if(heap_top!=tar)return -1;
+    else{
+        p->heap_top=heap_top;
+        return heap_top;
+    }
 }
 
 // 内存映射
@@ -21,6 +42,36 @@ uint64 sys_brk()
 // 成功返回映射空间的起始地址, 失败返回-1
 uint64 sys_mmap()
 {
+    uint64 start;
+    uint32 len,perm;
+
+    arg_uint64(0, &start);
+    arg_uint32(1, &len);
+    arg_uint32(2, &perm);
+    if(start==0&&len%PGSIZE==0){
+        proc_t* p=myproc();
+        mmap_region_t* s= p->mmap;
+        while(s!=NULL){
+            if(s->npages>=len/PGSIZE){
+                start=s->begin;
+                uvm_mmap(start,len/PGSIZE,perm);
+                break;
+            }
+            s=s->next;
+        }
+        if(s==NULL) return -1;
+    }
+    else if(start%PGSIZE==0&&len%PGSIZE==0){
+        uvm_mmap(start, len/PGSIZE, perm);
+    }
+    else{
+        return -1;
+    }
+    proc_t* p =myproc();
+        uvm_show_mmaplist(p->mmap);
+        vm_print(p->pgtbl);
+        printf("\n");
+    return start;
 
 }
 
@@ -30,6 +81,23 @@ uint64 sys_mmap()
 // 成功返回0 失败返回-1
 uint64 sys_munmap()
 {
+    uint64 start;
+    uint32 len;
+
+    arg_uint64(0, &start);
+    arg_uint32(1, &len);
+    if(start%PGSIZE==0&&len%PGSIZE==0){
+        uvm_munmap(start,len/PGSIZE);
+        proc_t* p =myproc();
+        uvm_show_mmaplist(p->mmap);
+        vm_print(p->pgtbl);
+        printf("\n");
+
+        return 0;
+    }
+    else{
+        return -1;
+    }
 
 }
 
