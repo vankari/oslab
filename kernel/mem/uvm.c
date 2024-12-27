@@ -81,7 +81,8 @@ static void destroy_pgtbl(pgtbl_t pgtbl, uint32 level)
                 pgtbl[i]=0;
             }
         }
-        pmem_free(*pgtbl,false);
+        if(level<2)pmem_free((uint64)pgtbl,true);
+        if(level==2)pmem_free((uint64)pgtbl,false);
     }
 
 }
@@ -89,7 +90,7 @@ static void destroy_pgtbl(pgtbl_t pgtbl, uint32 level)
 // 页表销毁：trapframe 和 trampoline 单独处理
 void uvm_destroy_pgtbl(pgtbl_t pgtbl)
 {
-    vm_unmappages(pgtbl,TRAMPOLINE,PGSIZE,true);
+    vm_unmappages(pgtbl,TRAMPOLINE,PGSIZE,false);
     vm_unmappages(pgtbl,TRAPFRAME,PGSIZE,true);
     destroy_pgtbl(pgtbl,3);
     
@@ -99,11 +100,18 @@ void uvm_destroy_pgtbl(pgtbl_t pgtbl)
 void uvm_copy_pgtbl(pgtbl_t old, pgtbl_t new, uint64 heap_top, uint32 ustack_pages, mmap_region_t* mmap)
 {
     /* step-1: USER_BASE ~ heap_top */
-    copy_range(old,new,0,heap_top);
+    copy_range(old,new,USER_BASE,heap_top);
     /* step-2: ustack */
     copy_range(old,new,TRAPFRAME-ustack_pages*PGSIZE,TRAPFRAME);
     /* step-3: mmap_region */
-    copy_range(old,new,mmap->begin,mmap->begin+mmap->npages*PGSIZE);
+    uint64 alloc_start =MMAP_BEGIN;
+    for (mmap_region_t *s = mmap; s != NULL; s = s->next) {
+        while (alloc_start < s->begin) {
+            copy_range(old, new, alloc_start, alloc_start + PGSIZE);
+            alloc_start += PGSIZE;
+        }
+    }
+
 }
 
 // 在用户页表和进程mmap链里 新增mmap区域 [begin, begin + npages * PGSIZE)

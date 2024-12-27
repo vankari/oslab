@@ -67,10 +67,6 @@ uint64 sys_mmap()
     else{
         return -1;
     }
-    proc_t* p =myproc();
-        uvm_show_mmaplist(p->mmap);
-        vm_print(p->pgtbl);
-        printf("\n");
     return start;
 
 }
@@ -88,10 +84,6 @@ uint64 sys_munmap()
     arg_uint32(1, &len);
     if(start%PGSIZE==0&&len%PGSIZE==0){
         uvm_munmap(start,len/PGSIZE);
-        proc_t* p =myproc();
-        uvm_show_mmaplist(p->mmap);
-        vm_print(p->pgtbl);
-        printf("\n");
 
         return 0;
     }

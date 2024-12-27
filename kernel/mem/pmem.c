@@ -71,6 +71,7 @@ void* pmem_alloc(bool in_kernel)
         if(((uint64)ret % PGSIZE) != 0 || (uint64)ret < begin || (uint64)ret >= end)
             panic("kern_pmem_alloc");
         kern_region.list_head.next = ret->next;
+        kern_region.allocable--;
         spinlock_release(&kern_region.lk);
     }
     else
@@ -82,6 +83,7 @@ void* pmem_alloc(bool in_kernel)
         if(((uint64)ret % PGSIZE) != 0 || (uint64)ret < begin || (uint64)ret >= end)
             panic("user_pmem_alloc");
         user_region.list_head.next = ret->next;
+        user_region.allocable--;
         spinlock_release(&user_region.lk);    
     }
     return (void*)ret;
@@ -101,6 +103,7 @@ void pmem_free(uint64 page, bool in_kernel)
         page_node_t* temp = (page_node_t* )page;
         temp->next = kern_region.list_head.next;
         kern_region.list_head.next = temp;
+        kern_region.allocable++;
         spinlock_release(&kern_region.lk);
     }
     else
@@ -113,6 +116,7 @@ void pmem_free(uint64 page, bool in_kernel)
         page_node_t* temp = (page_node_t* )page;
         temp->next = user_region.list_head.next;
         user_region.list_head.next = temp;
+        user_region.allocable++;
         spinlock_release(&user_region.lk);
     }
 }
