@@ -79,9 +79,5 @@ void proc_make_first()
     proczero.ctx.ra=(uint64)trap_user_return;
     cpu_t* cur = mycpu();
     cur->proc=&proczero;
-    proc_t* p =myproc();
-    pgtbl_t pgtbl = p->pgtbl;
-            uvm_destroy_pgtbl(pgtbl);
-            vm_print(pgtbl);
     swtch(&(cur->ctx),&proczero.ctx);
 }
