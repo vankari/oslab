@@ -8,7 +8,14 @@
 
 // 系统调用跳转
 static uint64 (*syscalls[])(void) = {
-
+    [SYS_print]         sys_print,
+    [SYS_brk]           sys_brk,
+    [SYS_mmap]          sys_mmap,
+    [SYS_munmap]        sys_munmap,
+    [SYS_fork]          sys_fork,
+    [SYS_wait]          sys_wait,
+    [SYS_exit]          sys_exit,
+    [SYS_sleep]         sys_sleep,
 };
 
 // 系统调用
@@ -16,7 +23,7 @@ void syscall()
 {
     proc_t* p=myproc();
     int call_id = p->tf->a7;
-    if(call_id > 0 && call_id < sizeof(syscalls)/sizeof(syscalls)[0] && syscalls[call_id]) {
+    if(call_id >= 0 && call_id < sizeof(syscalls)/sizeof(syscalls)[0] && syscalls[call_id]) {
         p->tf->a0 = syscalls[call_id]();
     } 
     else {

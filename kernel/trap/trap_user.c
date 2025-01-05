@@ -35,6 +35,8 @@ void trap_user_handler()
         switch(trapid){
             case 1://smode 软中断 m mode timer intr引起
                 timer_interrupt_handler();
+                printf("timeintr\n");
+                proc_yield();
                 break;
             case 5:
                 printf("scause = %p\n",scause);

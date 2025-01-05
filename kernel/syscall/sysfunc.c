@@ -98,27 +98,40 @@ uint64 sys_munmap()
 // uint64 addr
 uint64 sys_print()
 {
-
+    char str[128] = {0};
+    arg_str(0, str, 128);
+    printf("%s", str, 128);
+    return 0;
 }
 
 // 进程复制
 uint64 sys_fork()
 {
-
+    int pid = proc_fork();
+    if (pid < 0) {
+        return -1;
+    }
+    return pid;
 }
 
 // 进程等待
 // uint64 addr  子进程退出时的exit_state需要放到这里 
 uint64 sys_wait()
 {
-
+    uint64 addr;
+    arg_uint64(0, &addr);
+    int pid = proc_wait(addr); 
+    return pid;
 }
 
 // 进程退出
 // int exit_state
 uint64 sys_exit()
 {
-
+    uint64 exit_state;
+    arg_uint64(0, &exit_state);
+    proc_exit(exit_state); 
+    return 0;
 }
 
 extern timer_t sys_timer;
@@ -128,5 +141,15 @@ extern timer_t sys_timer;
 // 成功返回0, 失败返回-1
 uint64 sys_sleep()
 {
+    uint32 sleep_duration = 0;  // SECONDS
+    uint32 start_ticks;
+    spinlock_acquire(&sys_timer.lk);
+    start_ticks = sys_timer.ticks;
+    while (sys_timer.ticks - start_ticks < sleep_duration * 10) {
+        proc_sleep(&sys_timer.ticks, &sys_timer.lk);
+        spinlock_acquire(&sys_timer.lk);
+    }
+    spinlock_release(&sys_timer.lk);
 
+    return 0;
 }

@@ -112,6 +112,7 @@ void trap_kernel_handler()
             //if(mycpuid() == 0){//暂时无法解释为什么在xv6中只有id=0的cpu触发timerintr
             timer_interrupt_handler();
             //}
+            proc_yield();
             w_sip(r_sip() & ~2);
             break;
             case 5://sti

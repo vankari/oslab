@@ -9,7 +9,7 @@
 
 extern char trampoline[]; // in trampoline.S
 
-static pgtbl_t kernel_pgtbl; // 内核页表
+pgtbl_t kernel_pgtbl; // 内核页表
 
 
 // 根据pagetable,找到va对应的pte
