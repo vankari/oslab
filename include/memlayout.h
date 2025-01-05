@@ -49,7 +49,7 @@
 // 目前限定它占32MB(8096个page) [MMAP_BEGIN, MMAP_END)
 
 // 映射区域的终点(给 ustack 留 32 个 page 的空间)
-#define MMAP_END  (TRAPFRAME - 32 * PGSIZE) 
+#define MMAP_END  (TRAPFRAME - 32 * PGSIZE)
 
 // 映射区域的起点
 #define MMAP_BEGIN  (MMAP_END - 8096 * PGSIZE)
