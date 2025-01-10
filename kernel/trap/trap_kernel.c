@@ -112,7 +112,7 @@ void trap_kernel_handler()
             //if(mycpuid() == 0){
             timer_interrupt_handler();
             //}
-            printf("timer++\n");
+            printf("cpu:%d timer++\n",mycpuid());
             w_sip(r_sip() & ~2);
             break;
             case 5://ssi
